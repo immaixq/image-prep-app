@@ -3,14 +3,21 @@ import { useState } from "react"
 
 export default function Home() {
 
-  const [ file, setFile ] = useState<File>()
+  const [ files, setFiles ] = useState<FileList>();
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!file) return
+    if (!files || files.length === 0) return
     
     try {
       const formData = new FormData()
-      formData.append('file', file)
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        if(!file) continue
+        formData.append('file', file)
+      }
+
       const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData
@@ -25,12 +32,12 @@ export default function Home() {
   }
 
   return (
-    <main>
-      <h1 className="text-3xl font-bold">Wanderlust Image Preparation Tools</h1>
-      <form onSubmit={onSubmit}>
-        <input type="file" name="file" onChange={(e) => setFile(e.target.files?.[0])}/>
-        <input type="submit" value="Upload"/>
-      </form>
+    <main className="max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold items-center">Wanderlust Image Preparation Tools</h1>
+        <form onSubmit={onSubmit}>
+          <input type="file" name="file" multiple onChange={(e) => setFiles(e.target.files || undefined )}/>
+          <input className="minimalist-button" type="submit" value="Upload"/>
+        </form>
     </main>
   )
 }
