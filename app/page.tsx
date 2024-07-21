@@ -14,19 +14,11 @@ const container = {
   }
 };
 
-const item = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1
-  }
-};
-
-
 export default function Home() {
 
   const [previews, setPreviews] = useState<string[]>([]);
   const [fileData, setFileData] = useState<{ file: File; preview: string }[]>([]);
+  const [uploadSuccess, setUploadSuccess] = useState<boolean>(false)
 
 
   useEffect(() => {
@@ -75,10 +67,25 @@ export default function Home() {
 
       const data = await res.json()
       console.log(data)
+      setUploadSuccess(true);
+
+      // Reset fileData and other related states
+      setFileData([]);
+      setPreviews([]);
+
+      // Set time out for upload success message
+      setTimeout(() => {
+        setUploadSuccess(false);
+      }, 3000);
     } catch (error) {
       console.error(error)
+      setUploadSuccess(false);
     }
   }
+
+  const successMessage = () => (
+    <p className="text-green-500">Upload Successful</p>
+  );
 
   return (
     <main className="max-w-4xl mx-auto p-6 sm:p-10">
@@ -87,6 +94,7 @@ export default function Home() {
         <input className="mb-4" type="file" name="file" multiple onChange={handleFileChange} />
         <input className="minimalist-button" type="submit" value="Upload" />
       </form>
+      {uploadSuccess && successMessage()}
       <motion.div
         className="image-previews"
         variants={container}
